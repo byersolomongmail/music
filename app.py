@@ -1,14 +1,14 @@
 import requests
-import subprocess
+# import subprocess
 from bs4 import BeautifulSoup
 # from langdetect import detect, detect_langs
-from phonemizer import phonemize
+# from phonemizer import phonemize
 # from transliterate import translit
-from polyglot.text import Text
+# from polyglot.text import Text
 import lyricsgenius as lg
 import os
 # import tkinter as tk
-from polyglot.downloader import downloader
+# from polyglot.downloader import downloader
 # import pandas lib as pd
 import pandas as pd
 import re
@@ -112,18 +112,19 @@ def get_lyrics(song_title, artist_name):
         print("Failed to transliterate lyrics:", e)
         # Attempt to install the missing language package and retry
         try:
-            language_code = e.args[0].split("'")[-2]  # Extract language code from the error message
-            downloader.download("TASK:transliteration2", quiet=True)
-            transliteration_path = os.path.join("polyglot_data", "transliteration2", "he")
-            target_path = os.path.join("polyglot_data", "transliteration2", "iw")
+            pass
+            # language_code = e.args[0].split("'")[-2]  # Extract language code from the error message
+            # downloader.download("TASK:transliteration2", quiet=True)
+            # transliteration_path = os.path.join("polyglot_data", "transliteration2", "he")
+            # target_path = os.path.join("polyglot_data", "transliteration2", "iw")
 
-            # Rename the folder if it exists
-            if os.path.exists(transliteration_path) and not os.path.exists(target_path):
-                os.rename(transliteration_path, target_path)
-                print(f"Renamed folder from 'he' to 'iw' to resolve the issue.")
-            print(f"Installed missing language package: {language_code}. Retrying transliteration.")
-            text_obj = Text(lyrics)
-            lyrics = text_obj.transliterate("en")
+            # # Rename the folder if it exists
+            # if os.path.exists(transliteration_path) and not os.path.exists(target_path):
+            #     os.rename(transliteration_path, target_path)
+            #     print(f"Renamed folder from 'he' to 'iw' to resolve the issue.")
+            # print(f"Installed missing language package: {language_code}. Retrying transliteration.")
+            # text_obj = Text(lyrics)
+            # lyrics = text_obj.transliterate("en")
         except Exception as retry_error:
             print("Failed to install missing language package or retry transliteration:", retry_error)
             # return lyrics, None, None, None,None, None, None, None
