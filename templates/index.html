@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App</title>
+</head>
+<body>
+    <h1>Music App</h1>
+    <form id="songForm">
+        <label for="song">Song:</label>
+        <input type="text" id="song" name="song" required>
+        <label for="artist">Artist:</label>
+        <input type="text" id="artist" name="artist">
+        <button type="submit">Submit</button>
+    </form>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById("songForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const song = document.getElementById("song").value;
+            const artist = document.getElementById("artist").value;
+
+            const response = await fetch("/process", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ song, artist }),
+            });
+
+            const result = await response.json();
+            document.getElementById("results").innerText = JSON.stringify(result, null, 2);
+        });
+    </script>
+</body>
+</html>
