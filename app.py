@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 # from phonemizer import phonemize
 # from transliterate import translit
 # from polyglot.text import Text
-import LyricsGenius as lg
+import lyricsgenius as lg
 import os
 # import tkinter as tk
 # from polyglot.downloader import downloader
