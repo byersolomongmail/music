@@ -1,8 +1,4 @@
 flask
 requests
 beautifulsoup4
-langdetect
-phonemizer
-transliterate
-polyglot
 pandas
