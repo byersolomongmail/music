@@ -36,8 +36,10 @@ def get_lyrics(song_title, artist_name):
         }
 
         try:
+            api_key="bad45a4502b8c2107eae8e4b86fa77e0"
+            proxy_url = f'http://api.scraperapi.com?api_key={api_key}&url={search_url}'
             # Perform Google search to find the lyrics page
-            response = requests.get(search_url, headers=headers)
+            response = requests.get(proxy_url)
             response.raise_for_status()
         except requests.RequestException as e:
             print("Failed to connect to Google:", e)
@@ -67,11 +69,9 @@ def get_lyrics(song_title, artist_name):
                 "Upgrade-Insecure-Requests": "1",
                 "Referer": "https://www.google.com",
                 "DNT": "1",  # Do Not Track Request Header
-                "Pragma": "no-cache",
-                "Cache-Control": "no-cache"
             }
             # Fetch the lyrics page
-            response = requests.get(lyrics_url)
+            response = requests.get(lyrics_url, headers=headers)
             response.raise_for_status()
         except requests.RequestException as e:
             print("Failed to retrieve lyrics page:", e)
