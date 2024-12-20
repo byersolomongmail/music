@@ -32,14 +32,7 @@ def get_lyrics(song_title, artist_name):
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-            "Referer": "https://www.google.com",
-            "DNT": "1",  # Do Not Track Request Header
-            "Pragma": "no-cache",
-            "Cache-Control": "no-cache"
+          
         }
 
         try:
@@ -57,7 +50,7 @@ def get_lyrics(song_title, artist_name):
         lyrics_url = None
         for link in soup.find_all("a", href=True):
             url = link["href"]
-            if "lyricsted.com" in url or "azlyrics.com" in url or "lyricsbell.com" in url or "glamsham.com" in url or "lyricsmint.com" in url:
+            if "genius.com" in url or "lyricsted.com" in url or "azlyrics.com" in url or "lyricsbell.com" in url or "glamsham.com" in url or "lyricsmint.com" in url:
                 lyrics_url = url
                 break
 
@@ -66,6 +59,17 @@ def get_lyrics(song_title, artist_name):
             return None,None, None, None,None, None, None, None
 
         try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Referer": "https://www.google.com",
+                "DNT": "1",  # Do Not Track Request Header
+                "Pragma": "no-cache",
+                "Cache-Control": "no-cache"
+            }
             # Fetch the lyrics page
             response = requests.get(lyrics_url, headers=headers)
             response.raise_for_status()
