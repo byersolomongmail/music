@@ -3,20 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music App</title>
+    <title>Music Grid</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .form-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .cell {
+            width: 100%;
+            padding-bottom: 100%; /* Make it square */
+            position: relative;
+            background-color: lightgray;
+            border: 1px solid black;
+            display: flex;
+        
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+        .cell:hover {
+            transform: scale(1.1); /* Makes the cell slightly bigger */
+            filter: brightness(1.2); /* Adds a color filter effect */
+            z-index: 1; /* Bring the cell above others when hovering */
+        }
+
+        .cell span:first-of-type {
+            position: absolute;
+            top: 10%;
+        }
+        .cell span:last-of-type {
+            position: absolute;
+            bottom: 10%;
+            color: black;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #results {
+            margin-top: 20px;
+            width: 80%;
+            margin: auto;
+            text-align: left;
+            margin-bottom: 100px;
+            word-break: break-all;
+        }
+    </style>
 </head>
 <body>
-    <h1>Music App</h1>
-    <form id="songForm">
-        <label for="song">Song:</label>
-        <input type="text" id="song" name="song" required>
-        <label for="artist">Artist:</label>
-        <input type="text" id="artist" name="artist">
-        <button type="submit">Submit</button>
-    </form>
+
+    <div class="form-container">
+        <form id="songForm">
+            <label for="song">Song:</label>
+            <input type="text" id="song" name="song" required>
+            <label for="artist">Artist:</label>
+            <input type="text" id="artist" name="artist">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="grid"></div>
+
+    <div class="buttons">
+        <button id="prevButton" disabled>← Previous</button>
+        <button id="zoomButton">🔍 Zoom +/-</button>
+        <button id="showWordsButton">Show Words</button>
+        <button id="nextButton">Next →</button>
+    </div>
+
     <div id="results"></div>
 
     <script>
+        let currentPage = 0;
+        let zoomed = true;
+        let showWords = false;
+        let gridData = [];
+        let gridWords = [];
+
         document.getElementById("songForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const song = document.getElementById("song").value;
@@ -29,8 +117,79 @@
             });
 
             const result = await response.json();
-            document.getElementById("results").innerText = JSON.stringify(result, null, 2);
+            gridData = result.colors || [];
+            gridWords = result.words || [];
+            currentPage = 0;
+            renderGrid();
+            document.getElementById("results").innerText=JSON.stringify(result);
+        });
+
+        function renderGrid() {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+
+            const startIdx = currentPage * 49;
+            const endIdx = startIdx + 49;
+            const pageData = gridData.slice(startIdx, endIdx);
+            const pageWords = gridWords.slice(startIdx, endIdx);
+            var counter=0;
+            pageData.forEach((color, idx) => {
+                counter++;
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                const gradientColors = color.join(", "); // Join all colors with a comma
+                if(zoomed){
+                cell.style.background =color[0] || color ;
+                }else{
+                    cell.style.background = color.length>1?`linear-gradient(to right, ${gradientColors})`:color[0]||color;
+                }
+                if (showWords && pageWords[idx]) {
+                    var text = document.createElement("span");
+                    text.innerText = pageWords[idx];
+                    cell.appendChild(text);
+                    text = document.createElement("span");
+                    text.innerText = pageWords[idx];
+                    cell.appendChild(text);
+                }
+
+                grid.appendChild(cell);
+            });
+            for(var i=counter;i<49;i++){
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.style.background = "white";
+                grid.appendChild(cell);
+
+            }
+
+            document.getElementById("prevButton").disabled = currentPage === 0;
+            document.getElementById("nextButton").disabled = endIdx >= gridData.length;
+        }
+
+        document.getElementById("prevButton").addEventListener("click", () => {
+            if (currentPage > 0) {
+                currentPage--;
+                renderGrid();
+            }
+        });
+
+        document.getElementById("nextButton").addEventListener("click", () => {
+            if ((currentPage + 1) * 49 < gridData.length) {
+                currentPage++;
+                renderGrid();
+            }
+        });
+
+        document.getElementById("zoomButton").addEventListener("click", () => {
+            zoomed = !zoomed;
+            renderGrid();
+        });
+
+        document.getElementById("showWordsButton").addEventListener("click", () => {
+            showWords = !showWords;
+            renderGrid();
         });
     </script>
+
 </body>
 </html>

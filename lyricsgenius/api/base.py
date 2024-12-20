@@ -52,6 +52,7 @@ class Sender(object):
         web=False,
         **kwargs
     ):
+    
         """Makes a request to Genius."""
         if public_api:
             uri = self.PUBLIC_API_ROOT
@@ -72,12 +73,19 @@ class Sender(object):
         while response is None and tries <= self.retries:
             tries += 1
             try:
-                response = self._session.request(method, uri,
-                                                 timeout=self.timeout,
-                                                 params=params_,
-                                                 headers=header,
-                                                 **kwargs)
+                response = self._session.request(
+                    method,
+                    uri,
+                    timeout=self.timeout,
+                    params=params_,
+                    headers = {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                        **(header if header else {})  # Include existing headers if they exist
+                    },
+                    **kwargs
+                )
                 response.raise_for_status()
+
             except Timeout as e:
                 error = "Request timed out:\n{e}".format(e=e)
                 if tries > self.retries:
