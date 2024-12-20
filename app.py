@@ -57,7 +57,7 @@ def get_lyrics(song_title, artist_name):
         lyrics_url = None
         for link in soup.find_all("a", href=True):
             url = link["href"]
-            if "genius.com" in url or "azlyrics.com" in url:
+            if "lyricsted.com" in url or "azlyrics.com" in url or "lyricsbell.com" in url or "glamsham.com" in url or "lyricsmint.com" in url:
                 lyrics_url = url
                 break
 
