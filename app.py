@@ -71,7 +71,7 @@ def get_lyrics(song_title, artist_name):
                 "Cache-Control": "no-cache"
             }
             # Fetch the lyrics page
-            response = requests.get(lyrics_url, headers=headers)
+            response = requests.get(lyrics_url)
             response.raise_for_status()
         except requests.RequestException as e:
             print("Failed to retrieve lyrics page:", e)
