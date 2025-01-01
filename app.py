@@ -1,7 +1,5 @@
-import requests
 import os
 import sqlite3
-import pandas as pd
 import re
 os.environ["JOBLIB_TEMP_FOLDER"] = "/tmp"
 from flask import Flask, request, render_template, jsonify
