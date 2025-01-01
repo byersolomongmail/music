@@ -29,7 +29,6 @@
             background-color: lightgray;
             border: 1px solid black;
             display: flex;
-        
             align-items: center;
             justify-content: center;
             font-size: 14px;
@@ -80,9 +79,11 @@
     <div class="form-container">
         <form id="songForm">
             <label for="song">Song:</label>
-            <input type="text" id="song" name="song" required>
+            <input type="text" id="song" name="song" list="songSuggestions" autocomplete="off" required>
+            <datalist id="songSuggestions"></datalist>
             <label for="artist">Artist:</label>
-            <input type="text" id="artist" name="artist">
+            <input type="text" id="artist" name="artist" list="artistSuggestions" autocomplete="off">
+            <datalist id="artistSuggestions"></datalist>
             <button type="submit">Submit</button>
         </form>
     </div>
@@ -93,10 +94,11 @@
         <button id="prevButton" disabled>← Previous</button>
         <button id="zoomButton">🔍 Zoom +/-</button>
         <button id="showWordsButton">Show Words</button>
+        <button id="showResultsButton" onclick="document.getElementById('results').toggleAttribute('hidden')">Show results</button>
         <button id="nextButton">Next →</button>
     </div>
 
-    <div id="results"></div>
+    <div id="results" hidden></div>
 
     <script>
         let currentPage = 0;
@@ -104,6 +106,40 @@
         let showWords = false;
         let gridData = [];
         let gridWords = [];
+
+        async function fetchSuggestions(input, type) {
+                try {
+                    const response = await fetch(`/suggestions?type=${type}&query=${encodeURIComponent(input)}`);
+                    if (!response.ok) {
+                        console.error(`Error fetching ${type} suggestions:`, response.statusText);
+                        return [];
+                    }
+                    const data = await response.json();
+                    return data.suggestions || [];
+                } catch (error) {
+                    console.error(`Error fetching ${type} suggestions:`, error);
+                    return [];
+                }
+            }
+
+            document.getElementById("song").addEventListener("input", async (e) => {
+                const input = e.target.value;
+                if (input.length > 2) {
+                    const suggestions = await fetchSuggestions(input, "song");
+                    const datalist = document.getElementById("songSuggestions");
+                    datalist.innerHTML = suggestions.map(song => `<option value="${song}">`).join("");
+                }
+            });
+
+            document.getElementById("artist").addEventListener("input", async (e) => {
+                const input = e.target.value;
+                if (input.length > 2) {
+                    const suggestions = await fetchSuggestions(input, "artist");
+                    const datalist = document.getElementById("artistSuggestions");
+                    datalist.innerHTML = suggestions.map(artist => `<option value="${artist}">`).join("");
+                }
+            });
+
 
         document.getElementById("songForm").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -117,11 +153,13 @@
             });
 
             const result = await response.json();
-            gridData = result.colors || [];
+            gridData = result.colors.replaceAll('\'', '"')
+            console.log(gridData);
+            gridData = JSON.parse(gridData) || [];
             gridWords = result.words || [];
             currentPage = 0;
             renderGrid();
-            document.getElementById("results").innerText=JSON.stringify(result);
+            document.getElementById("results").innerText = JSON.stringify(result);
         });
 
         function renderGrid() {
@@ -132,19 +170,19 @@
             const endIdx = startIdx + 49;
             const pageData = gridData.slice(startIdx, endIdx);
             const pageWords = gridWords.slice(startIdx, endIdx);
-            var counter=0;
+            let counter = 0;
             pageData.forEach((color, idx) => {
                 counter++;
                 const cell = document.createElement("div");
                 cell.className = "cell";
                 const gradientColors = color.join(", "); // Join all colors with a comma
-                if(zoomed){
-                cell.style.background =color[0] || color ;
-                }else{
-                    cell.style.background = color.length>1?`linear-gradient(to right, ${gradientColors})`:color[0]||color;
+                if (zoomed) {
+                    cell.style.background = color[0] || color;
+                } else {
+                    cell.style.background = color.length > 1 ? `linear-gradient(to right, ${gradientColors})` : color[0] || color;
                 }
                 if (showWords && pageWords[idx]) {
-                    var text = document.createElement("span");
+                    let text = document.createElement("span");
                     text.innerText = pageWords[idx];
                     cell.appendChild(text);
                     text = document.createElement("span");
@@ -154,12 +192,11 @@
 
                 grid.appendChild(cell);
             });
-            for(var i=counter;i<49;i++){
+            for (let i = counter; i < 49; i++) {
                 const cell = document.createElement("div");
                 cell.className = "cell";
                 cell.style.background = "white";
                 grid.appendChild(cell);
-
             }
 
             document.getElementById("prevButton").disabled = currentPage === 0;
